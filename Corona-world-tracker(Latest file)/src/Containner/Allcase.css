@@ -1,0 +1,40 @@
+.jumbotron{
+    background-color: #fff;
+    
+    margin-top: 5px;
+    text-align: center;
+}
+.all-cases{
+    background-color: #ff3b5b;
+    height: 120px;
+    width:230px;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #ff3b5b;
+    box-shadow: 5px 6px 80px #d6d4d4;
+}
+.deaths{
+    background-color: #eb3434;
+    height: 120px;
+    width:230px;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #eb3434;
+    box-shadow: 5px 6px 80px #d6d4d4;
+}
+.recovered{
+    background-color:#8ACA2B;
+    height: 120px;
+    width:230px;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #8ACA2B;
+    box-shadow: 5px 6px 80px #d6d4d4;
+}
+
+h2{
+    margin-top: 10px;
+    font-size: 24px;
+    color: #fff;
+   
+}

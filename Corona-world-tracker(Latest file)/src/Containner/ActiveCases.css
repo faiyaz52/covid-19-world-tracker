@@ -1,0 +1,33 @@
+ .active{
+    width: 60%;
+    padding: 15px;
+    background-color: white;
+    box-shadow:-30px -5px 78px 0px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius:10px; 
+  }
+.activecase{
+  height: 120px;
+
+  border-radius: 10px;
+  padding: 15px;
+  background-color:#065966;
+  box-shadow: 20px 20px 120px #d6d4d4;
+  width:440px;
+  height:200px;
+  color:#fff;
+  font-size:12px;
+}
+.closedcase{
+  height: 120px;
+  width:250px;
+  border-radius: 16px;
+  padding: 15px;
+  background-color: #6C757D;
+  box-shadow: 20px 20px 120px #d6d4d4;
+  width:440px;
+  height:200px;
+}
+.jum{
+margin-top:-160px;
+}
+
