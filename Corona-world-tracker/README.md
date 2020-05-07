@@ -1,4 +1,4 @@
-This is Real Time Apllication for Covid-19(like World Meter)
+This is Real Time Apllication for Covid-19 world tracker (like World Meter)
 
 Website like:https://covid-19-world-tracker-96ad9.web.app 
 
