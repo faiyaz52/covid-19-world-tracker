@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Summary - Hotel Booking System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Booking Summary</h1>
+            <nav>
+                <button onclick="openPage('index.html')" class="nav-btn">Home</button>
+                <button onclick="openPage('hotel-selection.html')" class="nav-btn">Select Hotel</button>
+                <button onclick="openPage('guest-details.html')" class="nav-btn">Guest Details</button>
+            </nav>
+        </header>
+
+        <main>
+            <div class="summary-container" id="summaryContainer">
+                <!-- Booking summary will be displayed here -->
+            </div>
+
+            <div class="actions" id="actionsContainer">
+                <!-- Action buttons will be displayed here -->
+            </div>
+        </main>
+    </div>
+
+    <script src="booking-manager.js"></script>
+    <script>
+        function openPage(page) {
+            window.open(page, '_blank');
+        }
+
+        function displayBookingSummary() {
+            const booking = BookingManager.getBookingData();
+            const summaryContainer = document.getElementById('summaryContainer');
+            const actionsContainer = document.getElementById('actionsContainer');
+            
+            const validation = BookingManager.validateBooking();
+            
+            if (!validation.isValid) {
+                summaryContainer.innerHTML = `
+                    <div class="incomplete-booking">
+                        <h3>Incomplete Booking</h3>
+                        <p>Please complete the following steps:</p>
+                        <ul class="error-list">
+                            ${validation.errors.map(error => `<li>${error}</li>`).join('')}
+                        </ul>
+                        <div class="quick-links">
+                            <button onclick="openPage('hotel-selection.html')" class="nav-btn">Select Hotel</button>
+                            <button onclick="openPage('guest-details.html')" class="nav-btn">Add Guest Details</button>
+                        </div>
+                    </div>
+                `;
+                actionsContainer.innerHTML = '';
+                return;
+            }
+
+            // Calculate nights and total
+            const checkInDate = new Date(booking.checkIn);
+            const checkOutDate = new Date(booking.checkOut);
+            const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+            const totalAmount = booking.hotelPrice * nights;
+
+            // Update total in booking data
+            BookingManager.updateField('totalAmount', totalAmount);
+
+            summaryContainer.innerHTML = `
+                <div class="booking-summary-complete">
+                    <h3>Your Booking Details</h3>
+                    
+                    <!-- Hotel Information -->
+                    <div class="summary-section">
+                        <h4>Hotel Information</h4>
+                        <div class="hotel-summary">
+                            ${booking.hotelImage ? `<img src="${booking.hotelImage}" alt="${booking.hotelName}" class="summary-hotel-image">` : ''}
+                            <div class="hotel-details">
+                                <h5>${booking.hotelName}</h5>
+                                <p class="price">$${booking.hotelPrice} per night</p>
+                                ${booking.hotelDescription ? `<p class="description">${booking.hotelDescription}</p>` : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stay Information -->
+                    <div class="summary-section">
+                        <h4>Stay Information</h4>
+                        <div class="stay-details">
+                            <div class="date-info">
+                                <div class="date-item">
+                                    <span class="label">Check-in:</span>
+                                    <span class="value">${formatDate(booking.checkIn)}</span>
+                                </div>
+                                <div class="date-item">
+                                    <span class="label">Check-out:</span>
+                                    <span class="value">${formatDate(booking.checkOut)}</span>
+                                </div>
+                                <div class="date-item">
+                                    <span class="label">Nights:</span>
+                                    <span class="value">${nights}</span>
+                                </div>
+                                <div class="date-item">
+                                    <span class="label">Guests:</span>
+                                    <span class="value">${booking.guests}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Guest Information -->
+                    <div class="summary-section">
+                        <h4>Guest Information</h4>
+                        <div class="guests-summary">
+                            ${booking.guestDetails.map((guest, index) => `
+                                <div class="guest-summary">
+                                    <h6>Guest ${index + 1}</h6>
+                                    <p><strong>Name:</strong> ${guest.firstName} ${guest.lastName}</p>
+                                    <p><strong>Email:</strong> ${guest.email}</p>
+                                    <p><strong>Phone:</strong> ${guest.phone}</p>
+                                    <p><strong>Age:</strong> ${guest.age}</p>
+                                    ${guest.specialRequests ? `<p><strong>Special Requests:</strong> ${guest.specialRequests}</p>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Cost Breakdown -->
+                    <div class="summary-section">
+                        <h4>Cost Breakdown</h4>
+                        <div class="cost-breakdown">
+                            <div class="cost-item">
+                                <span>Room Rate (${nights} nights × $${booking.hotelPrice}):</span>
+                                <span>$${totalAmount}</span>
+                            </div>
+                            <div class="cost-item taxes">
+                                <span>Taxes & Fees:</span>
+                                <span>$${Math.round(totalAmount * 0.12)}</span>
+                            </div>
+                            <div class="cost-item total">
+                                <span><strong>Total Amount:</strong></span>
+                                <span><strong>$${totalAmount + Math.round(totalAmount * 0.12)}</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Status -->
+                    <div class="summary-section">
+                        <h4>Booking Status</h4>
+                        <div class="booking-status">
+                            <p><strong>Status:</strong> <span class="status-pending">Pending Confirmation</span></p>
+                            <p><strong>Booking Reference:</strong> ${booking.sessionId}</p>
+                            <p><strong>Last Updated:</strong> ${new Date(booking.lastUpdated).toLocaleString()}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            actionsContainer.innerHTML = `
+                <div class="booking-actions">
+                    <button onclick="confirmBooking()" class="confirm-btn">Confirm Booking</button>
+                    <button onclick="editBooking()" class="edit-btn">Edit Booking</button>
+                    <button onclick="exportBooking()" class="export-btn">Export Details</button>
+                    <button onclick="clearBooking()" class="clear-btn">Start New Booking</button>
+                </div>
+            `;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function confirmBooking() {
+            const booking = BookingManager.getBookingData();
+            const validation = BookingManager.validateBooking();
+            
+            if (!validation.isValid) {
+                alert('Please complete all required booking information before confirming.');
+                return;
+            }
+
+            // Simulate booking confirmation
+            const confirmationNumber = 'HTL' + Date.now().toString().slice(-8);
+            
+            if (confirm(`Are you sure you want to confirm this booking?\n\nTotal Amount: $${booking.totalAmount + Math.round(booking.totalAmount * 0.12)}\n\nThis action cannot be undone.`)) {
+                alert(`Booking Confirmed!\n\nConfirmation Number: ${confirmationNumber}\n\nThank you for your booking. You will receive a confirmation email shortly.`);
+                
+                // Update booking status
+                BookingManager.updateFields({
+                    status: 'confirmed',
+                    confirmationNumber: confirmationNumber,
+                    confirmedAt: new Date().toISOString()
+                });
+                
+                displayBookingSummary();
+            }
+        }
+
+        function editBooking() {
+            const options = [
+                'Edit Hotel Selection',
+                'Edit Guest Details',
+                'Cancel'
+            ];
+            
+            const choice = prompt(`What would you like to edit?\n\n1. Hotel Selection\n2. Guest Details\n\nEnter your choice (1-2):`);
+            
+            switch(choice) {
+                case '1':
+                    openPage('hotel-selection.html');
+                    break;
+                case '2':
+                    openPage('guest-details.html');
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        function exportBooking() {
+            const booking = BookingManager.exportBookingData();
+            const dataStr = JSON.stringify(booking, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `hotel-booking-${booking.sessionId}.json`;
+            link.click();
+            
+            alert('Booking details exported successfully!');
+        }
+
+        function clearBooking() {
+            if (confirm('Are you sure you want to clear all booking data and start a new booking?\n\nThis action cannot be undone.')) {
+                BookingManager.clearBookingData();
+                alert('Booking data cleared. Starting new booking...');
+                displayBookingSummary();
+            }
+        }
+
+        // Listen for booking data changes from other tabs
+        window.addEventListener('bookingDataChanged', () => {
+            displayBookingSummary();
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            displayBookingSummary();
+        });
+    </script>
+</body>
+</html>

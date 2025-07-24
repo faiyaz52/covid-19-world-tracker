@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Hotel - Hotel Booking System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Select Your Hotel</h1>
+            <nav>
+                <button onclick="openPage('index.html')" class="nav-btn">Home</button>
+                <button onclick="openPage('guest-details.html')" class="nav-btn">Guest Details</button>
+                <button onclick="openPage('booking-summary.html')" class="nav-btn">Booking Summary</button>
+            </nav>
+        </header>
+
+        <main>
+            <div class="current-selection" id="currentSelection">
+                <!-- Current selection will be displayed here -->
+            </div>
+
+            <div class="booking-dates">
+                <h3>Booking Dates</h3>
+                <div class="date-inputs">
+                    <div class="date-group">
+                        <label for="checkIn">Check-in Date:</label>
+                        <input type="date" id="checkIn" name="checkIn" min="">
+                    </div>
+                    <div class="date-group">
+                        <label for="checkOut">Check-out Date:</label>
+                        <input type="date" id="checkOut" name="checkOut" min="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="hotels-grid" id="hotelsGrid">
+                <!-- Hotels will be populated here -->
+            </div>
+        </main>
+    </div>
+
+    <script src="booking-manager.js"></script>
+    <script>
+        // Sample hotel data
+        const hotels = [
+            {
+                id: 'hotel_1',
+                name: 'Grand Palace Hotel',
+                price: 150,
+                image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400',
+                description: 'Luxury hotel in the heart of the city with stunning views and world-class amenities.',
+                amenities: ['Free WiFi', 'Swimming Pool', 'Spa', 'Restaurant', 'Gym']
+            },
+            {
+                id: 'hotel_2',
+                name: 'Seaside Resort',
+                price: 200,
+                image: 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=400',
+                description: 'Beautiful beachfront resort with private beach access and tropical gardens.',
+                amenities: ['Private Beach', 'Free WiFi', 'Restaurant', 'Bar', 'Water Sports']
+            },
+            {
+                id: 'hotel_3',
+                name: 'Mountain View Lodge',
+                price: 120,
+                image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400',
+                description: 'Cozy mountain lodge with breathtaking views and hiking trails nearby.',
+                amenities: ['Mountain Views', 'Hiking Trails', 'Free WiFi', 'Restaurant', 'Fireplace']
+            },
+            {
+                id: 'hotel_4',
+                name: 'City Business Hotel',
+                price: 100,
+                image: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=400',
+                description: 'Modern business hotel perfect for corporate travelers and city explorers.',
+                amenities: ['Business Center', 'Free WiFi', 'Meeting Rooms', 'Restaurant', 'Gym']
+            }
+        ];
+
+        function openPage(page) {
+            window.open(page, '_blank');
+        }
+
+        function displayCurrentSelection() {
+            const booking = BookingManager.getBookingData();
+            const currentDiv = document.getElementById('currentSelection');
+            
+            if (booking.hotelId) {
+                const selectedHotel = hotels.find(h => h.id === booking.hotelId);
+                if (selectedHotel) {
+                    currentDiv.innerHTML = `
+                        <div class="current-hotel">
+                            <h3>Currently Selected Hotel</h3>
+                            <div class="hotel-info">
+                                <img src="${selectedHotel.image}" alt="${selectedHotel.name}" style="width: 100px; height: 80px; object-fit: cover; border-radius: 8px;">
+                                <div>
+                                    <h4>${selectedHotel.name}</h4>
+                                    <p>$${selectedHotel.price} per night</p>
+                                    ${booking.checkIn ? `<p>Check-in: ${booking.checkIn}</p>` : ''}
+                                    ${booking.checkOut ? `<p>Check-out: ${booking.checkOut}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                currentDiv.innerHTML = `
+                    <div class="no-selection">
+                        <h3>No Hotel Selected</h3>
+                        <p>Please select a hotel from the options below.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function selectHotel(hotelId) {
+            const hotel = hotels.find(h => h.id === hotelId);
+            if (hotel) {
+                const success = BookingManager.updateFields({
+                    hotelId: hotel.id,
+                    hotelName: hotel.name,
+                    hotelPrice: hotel.price,
+                    hotelImage: hotel.image,
+                    hotelDescription: hotel.description
+                });
+
+                if (success) {
+                    displayCurrentSelection();
+                    displayHotels(); // Refresh to show selection
+                    alert(`${hotel.name} has been selected for your booking!`);
+                } else {
+                    alert('Failed to save hotel selection. Please try again.');
+                }
+            }
+        }
+
+        function displayHotels() {
+            const booking = BookingManager.getBookingData();
+            const grid = document.getElementById('hotelsGrid');
+            
+            grid.innerHTML = hotels.map(hotel => `
+                <div class="hotel-card ${booking.hotelId === hotel.id ? 'selected' : ''}">
+                    <img src="${hotel.image}" alt="${hotel.name}" class="hotel-image">
+                    <div class="hotel-info">
+                        <h3>${hotel.name}</h3>
+                        <p class="price">$${hotel.price} <span>per night</span></p>
+                        <p class="description">${hotel.description}</p>
+                        <div class="amenities">
+                            ${hotel.amenities.map(amenity => `<span class="amenity">${amenity}</span>`).join('')}
+                        </div>
+                        <button 
+                            onclick="selectHotel('${hotel.id}')" 
+                            class="select-btn ${booking.hotelId === hotel.id ? 'selected' : ''}"
+                        >
+                            ${booking.hotelId === hotel.id ? 'Selected' : 'Select Hotel'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateDates() {
+            const checkIn = document.getElementById('checkIn').value;
+            const checkOut = document.getElementById('checkOut').value;
+            
+            if (checkIn) {
+                BookingManager.updateField('checkIn', checkIn);
+                // Set minimum checkout date to day after checkin
+                document.getElementById('checkOut').min = checkIn;
+            }
+            
+            if (checkOut) {
+                BookingManager.updateField('checkOut', checkOut);
+            }
+
+            if (checkIn && checkOut) {
+                BookingManager.calculateTotal();
+                displayCurrentSelection();
+            }
+        }
+
+        function loadDates() {
+            const booking = BookingManager.getBookingData();
+            if (booking.checkIn) {
+                document.getElementById('checkIn').value = booking.checkIn;
+            }
+            if (booking.checkOut) {
+                document.getElementById('checkOut').value = booking.checkOut;
+            }
+        }
+
+        function setMinimumDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('checkIn').min = today;
+            document.getElementById('checkOut').min = today;
+        }
+
+        // Event listeners
+        document.getElementById('checkIn').addEventListener('change', updateDates);
+        document.getElementById('checkOut').addEventListener('change', updateDates);
+
+        // Listen for booking data changes from other tabs
+        window.addEventListener('bookingDataChanged', () => {
+            displayCurrentSelection();
+            displayHotels();
+            loadDates();
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            setMinimumDates();
+            loadDates();
+            displayCurrentSelection();
+            displayHotels();
+        });
+    </script>
+</body>
+</html>

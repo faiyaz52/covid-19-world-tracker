@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Booking System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Hotel Booking System</h1>
+            <nav>
+                <button onclick="openNewTab('hotel-selection.html')" class="nav-btn">
+                    Select Hotel
+                </button>
+                <button onclick="openNewTab('guest-details.html')" class="nav-btn">
+                    Guest Details
+                </button>
+                <button onclick="openNewTab('booking-summary.html')" class="nav-btn">
+                    Booking Summary
+                </button>
+            </nav>
+        </header>
+
+        <main>
+            <div class="welcome-section">
+                <h2>Welcome to Our Hotel Booking System</h2>
+                <p>Book your perfect stay with us. Click on the tabs above to start your booking process.</p>
+                
+                <div class="current-booking" id="currentBooking">
+                    <h3>Current Booking Status</h3>
+                    <div id="bookingStatus">
+                        <p>No booking in progress</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="booking-manager.js"></script>
+    <script>
+        function openNewTab(page) {
+            window.open(page, '_blank');
+        }
+
+        // Display current booking status
+        function displayBookingStatus() {
+            const booking = BookingManager.getBookingData();
+            const statusDiv = document.getElementById('bookingStatus');
+            
+            if (booking.hotelId || booking.guests || booking.checkIn) {
+                statusDiv.innerHTML = `
+                    <div class="booking-info">
+                        ${booking.hotelName ? `<p><strong>Hotel:</strong> ${booking.hotelName}</p>` : ''}
+                        ${booking.guests ? `<p><strong>Guests:</strong> ${booking.guests}</p>` : ''}
+                        ${booking.checkIn ? `<p><strong>Check-in:</strong> ${booking.checkIn}</p>` : ''}
+                        ${booking.checkOut ? `<p><strong>Check-out:</strong> ${booking.checkOut}</p>` : ''}
+                        <p><strong>Last Updated:</strong> ${new Date(booking.lastUpdated).toLocaleString()}</p>
+                    </div>
+                `;
+            } else {
+                statusDiv.innerHTML = '<p>No booking in progress</p>';
+            }
+        }
+
+        // Update status on page load and when storage changes
+        document.addEventListener('DOMContentLoaded', displayBookingStatus);
+        window.addEventListener('storage', displayBookingStatus);
+        
+        // Refresh status every 2 seconds to catch same-tab updates
+        setInterval(displayBookingStatus, 2000);
+    </script>
+</body>
+</html>

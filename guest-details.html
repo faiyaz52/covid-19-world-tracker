@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Details - Hotel Booking System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Guest Details</h1>
+            <nav>
+                <button onclick="openPage('index.html')" class="nav-btn">Home</button>
+                <button onclick="openPage('hotel-selection.html')" class="nav-btn">Select Hotel</button>
+                <button onclick="openPage('booking-summary.html')" class="nav-btn">Booking Summary</button>
+            </nav>
+        </header>
+
+        <main>
+            <div class="current-booking-info" id="currentBookingInfo">
+                <!-- Current booking info will be displayed here -->
+            </div>
+
+            <div class="guest-section">
+                <h3>Number of Guests</h3>
+                <div class="guest-count">
+                    <label for="guestCount">Total Guests:</label>
+                    <div class="counter">
+                        <button type="button" onclick="updateGuestCount(-1)" class="counter-btn">-</button>
+                        <input type="number" id="guestCount" value="1" min="1" max="10" readonly>
+                        <button type="button" onclick="updateGuestCount(1)" class="counter-btn">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guest-details-section" id="guestDetailsSection">
+                <h3>Guest Information</h3>
+                <div id="guestForms">
+                    <!-- Guest forms will be generated here -->
+                </div>
+            </div>
+
+            <div class="actions">
+                <button onclick="saveGuestDetails()" class="save-btn">Save Guest Details</button>
+                <button onclick="clearGuestDetails()" class="clear-btn">Clear All</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="booking-manager.js"></script>
+    <script>
+        function openPage(page) {
+            window.open(page, '_blank');
+        }
+
+        function displayCurrentBookingInfo() {
+            const booking = BookingManager.getBookingData();
+            const infoDiv = document.getElementById('currentBookingInfo');
+            
+            if (booking.hotelId) {
+                infoDiv.innerHTML = `
+                    <div class="booking-summary">
+                        <h3>Current Booking</h3>
+                        <div class="booking-details">
+                            <p><strong>Hotel:</strong> ${booking.hotelName}</p>
+                            <p><strong>Price:</strong> $${booking.hotelPrice} per night</p>
+                            ${booking.checkIn ? `<p><strong>Check-in:</strong> ${booking.checkIn}</p>` : ''}
+                            ${booking.checkOut ? `<p><strong>Check-out:</strong> ${booking.checkOut}</p>` : ''}
+                            ${booking.totalAmount ? `<p><strong>Total Amount:</strong> $${booking.totalAmount}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                infoDiv.innerHTML = `
+                    <div class="no-booking">
+                        <h3>No Hotel Selected</h3>
+                        <p>Please select a hotel first before adding guest details.</p>
+                        <button onclick="openPage('hotel-selection.html')" class="nav-btn">Select Hotel</button>
+                    </div>
+                `;
+            }
+        }
+
+        function updateGuestCount(change) {
+            const input = document.getElementById('guestCount');
+            let currentCount = parseInt(input.value);
+            let newCount = currentCount + change;
+            
+            if (newCount >= 1 && newCount <= 10) {
+                input.value = newCount;
+                BookingManager.updateField('guests', newCount);
+                generateGuestForms(newCount);
+            }
+        }
+
+        function generateGuestForms(guestCount) {
+            const formsContainer = document.getElementById('guestForms');
+            const booking = BookingManager.getBookingData();
+            const existingGuests = booking.guestDetails || [];
+            
+            let formsHTML = '';
+            
+            for (let i = 0; i < guestCount; i++) {
+                const guest = existingGuests[i] || {
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    phone: '',
+                    age: '',
+                    specialRequests: ''
+                };
+                
+                formsHTML += `
+                    <div class="guest-form" id="guestForm${i}">
+                        <h4>Guest ${i + 1}</h4>
+                        <div class="form-group">
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="firstName${i}">First Name:</label>
+                                    <input type="text" id="firstName${i}" value="${guest.firstName}" 
+                                           onchange="updateGuestField(${i}, 'firstName', this.value)" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="lastName${i}">Last Name:</label>
+                                    <input type="text" id="lastName${i}" value="${guest.lastName}" 
+                                           onchange="updateGuestField(${i}, 'lastName', this.value)" required>
+                                </div>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="email${i}">Email:</label>
+                                    <input type="email" id="email${i}" value="${guest.email}" 
+                                           onchange="updateGuestField(${i}, 'email', this.value)" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="phone${i}">Phone:</label>
+                                    <input type="tel" id="phone${i}" value="${guest.phone}" 
+                                           onchange="updateGuestField(${i}, 'phone', this.value)" required>
+                                </div>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="age${i}">Age:</label>
+                                    <input type="number" id="age${i}" value="${guest.age}" min="1" max="120"
+                                           onchange="updateGuestField(${i}, 'age', this.value)" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="specialRequests${i}">Special Requests:</label>
+                                    <textarea id="specialRequests${i}" rows="2" 
+                                              onchange="updateGuestField(${i}, 'specialRequests', this.value)"
+                                              placeholder="Any special requirements...">${guest.specialRequests}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            formsContainer.innerHTML = formsHTML;
+        }
+
+        function updateGuestField(guestIndex, fieldName, value) {
+            const booking = BookingManager.getBookingData();
+            const guestDetails = booking.guestDetails || [];
+            
+            // Ensure we have enough guest objects
+            while (guestDetails.length <= guestIndex) {
+                guestDetails.push({
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    phone: '',
+                    age: '',
+                    specialRequests: ''
+                });
+            }
+            
+            // Update the specific field
+            guestDetails[guestIndex][fieldName] = value;
+            
+            // Save back to storage
+            BookingManager.updateField('guestDetails', guestDetails);
+        }
+
+        function saveGuestDetails() {
+            const booking = BookingManager.getBookingData();
+            const guestCount = parseInt(document.getElementById('guestCount').value);
+            const guestDetails = [];
+            
+            let isValid = true;
+            let missingFields = [];
+            
+            for (let i = 0; i < guestCount; i++) {
+                const guest = {
+                    firstName: document.getElementById(`firstName${i}`).value.trim(),
+                    lastName: document.getElementById(`lastName${i}`).value.trim(),
+                    email: document.getElementById(`email${i}`).value.trim(),
+                    phone: document.getElementById(`phone${i}`).value.trim(),
+                    age: document.getElementById(`age${i}`).value,
+                    specialRequests: document.getElementById(`specialRequests${i}`).value.trim()
+                };
+                
+                // Validate required fields
+                if (!guest.firstName || !guest.lastName || !guest.email || !guest.phone || !guest.age) {
+                    isValid = false;
+                    missingFields.push(`Guest ${i + 1}`);
+                }
+                
+                guestDetails.push(guest);
+            }
+            
+            if (!isValid) {
+                alert(`Please fill in all required fields for: ${missingFields.join(', ')}`);
+                return;
+            }
+            
+            // Save guest details
+            const success = BookingManager.updateFields({
+                guests: guestCount,
+                guestDetails: guestDetails
+            });
+            
+            if (success) {
+                alert('Guest details saved successfully!');
+                displayCurrentBookingInfo();
+            } else {
+                alert('Failed to save guest details. Please try again.');
+            }
+        }
+
+        function clearGuestDetails() {
+            if (confirm('Are you sure you want to clear all guest details?')) {
+                BookingManager.updateFields({
+                    guests: 1,
+                    guestDetails: []
+                });
+                
+                document.getElementById('guestCount').value = 1;
+                generateGuestForms(1);
+                displayCurrentBookingInfo();
+            }
+        }
+
+        function loadGuestData() {
+            const booking = BookingManager.getBookingData();
+            const guestCount = booking.guests || 1;
+            
+            document.getElementById('guestCount').value = guestCount;
+            generateGuestForms(guestCount);
+        }
+
+        // Listen for booking data changes from other tabs
+        window.addEventListener('bookingDataChanged', () => {
+            displayCurrentBookingInfo();
+            loadGuestData();
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            displayCurrentBookingInfo();
+            loadGuestData();
+        });
+    </script>
+</body>
+</html>
