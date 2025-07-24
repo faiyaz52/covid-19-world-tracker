@@ -1,9 +1,17 @@
-import React from 'react';
-import './ActiveCases.css'
-class ActiveCases extends React.Component{
-   
-    render(){
-        const {activecase,closedcases}=this.props;
+import React, { PureComponent } from 'react';
+import './ActiveCases.css';
+
+class ActiveCases extends PureComponent {
+    render() {
+        const { activecase, closedcases } = this.props;
+        
+        if (!activecase || !closedcases) {
+            return (
+                <div className="jumbotron jum container" style={{textAlign: "center"}}>
+                    Loading case data...
+                </div>
+            );
+        }
 
     return(
         <div>

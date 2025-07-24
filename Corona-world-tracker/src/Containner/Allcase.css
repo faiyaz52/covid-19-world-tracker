@@ -36,5 +36,21 @@ h2{
     margin-top: 10px;
     font-size: 24px;
     color: #fff;
-   
+}
+
+/* CSS animation to replace deprecated marquee */
+.scroll-text {
+    animation: slide-left 10s linear infinite;
+}
+
+@keyframes slide-left {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .scroll-text {
+        animation: none;
+    }
 }
