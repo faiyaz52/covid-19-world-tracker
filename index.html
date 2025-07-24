@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Booking - Find Your Perfect Stay</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>BookStay</h1>
+                </div>
+                <nav class="nav">
+                    <a href="#" onclick="navigateTo('search')">Search</a>
+                    <a href="#" onclick="navigateTo('bookings')">My Bookings</a>
+                    <a href="#" onclick="navigateTo('profile')">Profile</a>
+                </nav>
+                <div class="user-actions">
+                    <button id="loginBtn" class="btn btn-outline">Sign In</button>
+                    <button id="registerBtn" class="btn btn-primary">Register</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Home Page -->
+        <section id="homePage" class="page active">
+            <div class="hero">
+                <div class="container">
+                    <div class="hero-content">
+                        <h2>Find Your Perfect Stay</h2>
+                        <p>Discover amazing hotels and accommodations worldwide</p>
+                        
+                        <!-- Search Form -->
+                        <div class="search-form">
+                            <div class="search-row">
+                                <div class="form-group">
+                                    <label for="destination">Where are you going?</label>
+                                    <input type="text" id="destination" placeholder="Enter destination" value="">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="checkin">Check-in</label>
+                                    <input type="date" id="checkin" value="">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="checkout">Check-out</label>
+                                    <input type="date" id="checkout" value="">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="guests">Guests</label>
+                                    <div class="guests-selector">
+                                        <input type="text" id="guests" readonly placeholder="2 adults, 1 room" value="2 adults, 1 room">
+                                        <div class="guests-dropdown" id="guestsDropdown">
+                                            <div class="guest-row">
+                                                <span>Adults</span>
+                                                <div class="counter">
+                                                    <button type="button" onclick="updateGuests('adults', -1)">-</button>
+                                                    <span id="adultsCount">2</span>
+                                                    <button type="button" onclick="updateGuests('adults', 1)">+</button>
+                                                </div>
+                                            </div>
+                                            <div class="guest-row">
+                                                <span>Children</span>
+                                                <div class="counter">
+                                                    <button type="button" onclick="updateGuests('children', -1)">-</button>
+                                                    <span id="childrenCount">0</span>
+                                                    <button type="button" onclick="updateGuests('children', 1)">+</button>
+                                                </div>
+                                            </div>
+                                            <div class="guest-row">
+                                                <span>Rooms</span>
+                                                <div class="counter">
+                                                    <button type="button" onclick="updateGuests('rooms', -1)">-</button>
+                                                    <span id="roomsCount">1</span>
+                                                    <button type="button" onclick="updateGuests('rooms', 1)">+</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button type="button" class="btn btn-primary search-btn" onclick="searchHotels()">
+                                    Search Hotels
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Results Page -->
+        <section id="searchPage" class="page">
+            <div class="container">
+                <div class="search-header">
+                    <h2>Search Results</h2>
+                    <div class="search-info">
+                        <span id="searchResultsInfo">Searching...</span>
+                    </div>
+                </div>
+                
+                <div class="search-content">
+                    <div class="filters">
+                        <h3>Filters</h3>
+                        <div class="filter-group">
+                            <h4>Price Range</h4>
+                            <div class="price-range">
+                                <input type="range" id="priceRange" min="0" max="500" value="250">
+                                <span>Up to $<span id="priceValue">250</span> per night</span>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <h4>Star Rating</h4>
+                            <div class="star-filters">
+                                <label><input type="checkbox" value="5"> 5 Stars</label>
+                                <label><input type="checkbox" value="4"> 4 Stars</label>
+                                <label><input type="checkbox" value="3"> 3 Stars</label>
+                                <label><input type="checkbox" value="2"> 2 Stars</label>
+                                <label><input type="checkbox" value="1"> 1 Star</label>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <h4>Amenities</h4>
+                            <div class="amenity-filters">
+                                <label><input type="checkbox" value="wifi"> Free WiFi</label>
+                                <label><input type="checkbox" value="pool"> Swimming Pool</label>
+                                <label><input type="checkbox" value="gym"> Fitness Center</label>
+                                <label><input type="checkbox" value="spa"> Spa</label>
+                                <label><input type="checkbox" value="restaurant"> Restaurant</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="results">
+                        <div id="hotelResults">
+                            <!-- Hotel results will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hotel Details Page -->
+        <section id="hotelDetailsPage" class="page">
+            <div class="container">
+                <div class="hotel-details">
+                    <div id="hotelDetailsContent">
+                        <!-- Hotel details will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking Page -->
+        <section id="bookingPage" class="page">
+            <div class="container">
+                <div class="booking-content">
+                    <h2>Complete Your Booking</h2>
+                    <div class="booking-form">
+                        <div class="guest-details">
+                            <h3>Guest Details</h3>
+                            <form id="bookingForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="firstName">First Name *</label>
+                                        <input type="text" id="firstName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name *</label>
+                                        <input type="text" id="lastName" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="email">Email *</label>
+                                        <input type="email" id="email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">Phone Number *</label>
+                                        <input type="tel" id="phone" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="specialRequests">Special Requests</label>
+                                    <textarea id="specialRequests" rows="3" placeholder="Any special requests or requirements..."></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="booking-summary">
+                            <h3>Booking Summary</h3>
+                            <div id="bookingSummaryContent">
+                                <!-- Booking summary will be populated here -->
+                            </div>
+                            <button type="button" class="btn btn-primary btn-full" onclick="confirmBooking()">
+                                Confirm Booking
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- My Bookings Page -->
+        <section id="bookingsPage" class="page">
+            <div class="container">
+                <h2>My Bookings</h2>
+                <div id="userBookings">
+                    <!-- User bookings will be populated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Page -->
+        <section id="profilePage" class="page">
+            <div class="container">
+                <h2>My Profile</h2>
+                <div class="profile-content">
+                    <form id="profileForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profileFirstName">First Name</label>
+                                <input type="text" id="profileFirstName">
+                            </div>
+                            <div class="form-group">
+                                <label for="profileLastName">Last Name</label>
+                                <input type="text" id="profileLastName">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profileEmail">Email</label>
+                                <input type="email" id="profileEmail">
+                            </div>
+                            <div class="form-group">
+                                <label for="profilePhone">Phone</label>
+                                <input type="tel" id="profilePhone">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="updateProfile()">
+                            Update Profile
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for Login/Register -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+            </div>
+            
+            <div id="loginForm" class="auth-form active">
+                <h3>Sign In</h3>
+                <form>
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe">
+                            Remember me
+                        </label>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-full" onclick="login()">
+                        Sign In
+                    </button>
+                </form>
+            </div>
+            
+            <div id="registerForm" class="auth-form">
+                <h3>Create Account</h3>
+                <form>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="regFirstName">First Name</label>
+                            <input type="text" id="regFirstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regLastName">Last Name</label>
+                            <input type="text" id="regLastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Email</label>
+                        <input type="email" id="regEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Password</label>
+                        <input type="password" id="regPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regConfirmPassword">Confirm Password</label>
+                        <input type="password" id="regConfirmPassword" required>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-full" onclick="register()">
+                        Create Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab State Indicator -->
+    <div id="tabStateIndicator" class="tab-state-indicator">
+        <span id="tabId"></span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/storage-manager.js"></script>
+    <script src="js/state-manager.js"></script>
+    <script src="js/hotel-data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
